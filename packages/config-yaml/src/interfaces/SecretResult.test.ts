@@ -38,4 +38,23 @@ describe("SecretLocation encoding/decoding", () => {
     const decoded = decodeSecretLocation(encoded);
     expect(decoded).toEqual(packageSecretLocation);
   });
+
+  it("encodes/decodes secret names containing colons", () => {
+    const localEnvSecretLocation = {
+      secretType: SecretType.LocalEnv as const,
+      secretName: "my:secret:name",
+    };
+
+    const encoded = encodeSecretLocation(localEnvSecretLocation);
+    expect(encoded).toBe("local_env:my:secret:name");
+
+    const decoded = decodeSecretLocation(encoded);
+    expect(decoded).toEqual(localEnvSecretLocation);
+  });
+
+  it("throws for a secret location without a secret type", () => {
+    expect(() => decodeSecretLocation("secret1")).toThrow(
+      "Invalid secret location: secret1",
+    );
+  });
 });

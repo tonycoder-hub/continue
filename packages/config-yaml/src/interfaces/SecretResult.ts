@@ -84,8 +84,14 @@ export function encodeSecretLocation(secretLocation: SecretLocation): string {
 }
 
 export function decodeSecretLocation(secretLocation: string): SecretLocation {
-  const [secretType, rest] = secretLocation.split(":");
-  const parts = rest.split("/");
+  // Only the first colon separates the type from the rest, since secret names
+  // are allowed to contain colons
+  const separatorIndex = secretLocation.indexOf(":");
+  if (separatorIndex === -1) {
+    throw new Error(`Invalid secret location: ${secretLocation}`);
+  }
+  const secretType = secretLocation.slice(0, separatorIndex);
+  const parts = secretLocation.slice(separatorIndex + 1).split("/");
   const secretName = parts[parts.length - 1];
 
   switch (secretType) {
